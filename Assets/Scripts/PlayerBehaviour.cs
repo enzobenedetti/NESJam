@@ -9,6 +9,12 @@ public class PlayerBehaviour : MonoBehaviour
     [SerializeField]
     private float m_speed = 0.7f;
 
+    [SerializeField]
+    private GameObject m_bullet;
+    private float m_timeSinceLastBullet = 500f;
+    [SerializeField]
+    private float m_bulletCooldown = 0.2f;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -18,6 +24,8 @@ public class PlayerBehaviour : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        m_timeSinceLastBullet += Time.deltaTime;
+
         if (Input.GetButton("Horizontal") || Input.GetButton("Vertical"))
         {
             Vector2 movement = Vector2.zero;
@@ -36,9 +44,12 @@ public class PlayerBehaviour : MonoBehaviour
         {
             m_rigidbody.velocity = Vector2.zero;
         }
-        if (Input.GetButtonDown("Fire"))
+        if (Input.GetButton("Fire") && m_timeSinceLastBullet >= m_bulletCooldown)
         {
+            GameObject newBullet = Instantiate(m_bullet, transform.position, Quaternion.identity);
+            newBullet.GetComponent<BulletBehaviour>().IsPlayerBullet = true;
 
+            m_timeSinceLastBullet = 0f;
         }
     }
 }
