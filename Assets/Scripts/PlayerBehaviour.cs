@@ -36,5 +36,9 @@ public class PlayerBehaviour : MonoBehaviour
         {
             m_rigidbody.velocity = Vector2.zero;
         }
+        if (Input.GetButtonDown("Fire"))
+        {
+
+        }
     }
 }
