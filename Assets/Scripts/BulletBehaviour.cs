@@ -22,5 +22,9 @@ public class BulletBehaviour : MonoBehaviour
         {
             transform.position += Vector3.right * Time.deltaTime * m_speed;
         }
+        if (transform.position.x - Camera.main.transform.position.x > Camera.main.orthographicSize + 1f)
+        {
+            Destroy(gameObject);
+        }
     }
 }

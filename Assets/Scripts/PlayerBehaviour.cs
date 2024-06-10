@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerBehaviour : MonoBehaviour
 {
@@ -8,12 +10,15 @@ public class PlayerBehaviour : MonoBehaviour
 
     [SerializeField]
     private float m_speed = 0.7f;
+    [SerializeField]
+    private float m_deadZone = 0.1f;
 
     [SerializeField]
     private GameObject m_bullet;
     private float m_timeSinceLastBullet = 500f;
     [SerializeField]
     private float m_bulletCooldown = 0.2f;
+    private bool m_isFiring = false;
 
     // Start is called before the first frame update
     void Start()
@@ -26,30 +31,42 @@ public class PlayerBehaviour : MonoBehaviour
     {
         m_timeSinceLastBullet += Time.deltaTime;
 
-        if (Input.GetButton("Horizontal") || Input.GetButton("Vertical"))
-        {
-            Vector2 movement = Vector2.zero;
-            if (Input.GetButton("Horizontal"))
-            {
-                movement += Vector2.right * Input.GetAxisRaw("Horizontal") * m_speed;
-            }
-            if (Input.GetButton("Vertical"))
-            {
-                movement += Vector2.up * Input.GetAxisRaw("Vertical") * m_speed;
-            }
-
-            m_rigidbody.velocity = movement;
-        }
-        else
-        {
-            m_rigidbody.velocity = Vector2.zero;
-        }
-        if (Input.GetButton("Fire") && m_timeSinceLastBullet >= m_bulletCooldown)
+        if (m_isFiring && m_timeSinceLastBullet >= m_bulletCooldown)
         {
             GameObject newBullet = Instantiate(m_bullet, transform.position, Quaternion.identity);
             newBullet.GetComponent<BulletBehaviour>().IsPlayerBullet = true;
 
             m_timeSinceLastBullet = 0f;
         }
+    }
+
+    void OnMove(InputValue value)
+    {
+        Vector2 movement = Vector2.zero;
+        Vector2 input = value.Get<Vector2>();
+
+        if (input.x > m_deadZone)
+        {
+            movement += Vector2.right * m_speed;
+        }
+        else if (input.x < -m_deadZone)
+        {
+            movement += Vector2.left * m_speed;
+        }
+        if (input.y > m_deadZone)
+        {
+            movement += Vector2.up * m_speed;
+        }
+        else if (input.y < -m_deadZone)
+        {
+            movement += Vector2.down * m_speed;
+        }
+
+        m_rigidbody.velocity = movement;
+    }
+
+    void OnFire()
+    {
+        m_isFiring = !m_isFiring;
     }
 }
